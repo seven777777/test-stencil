@@ -10,5 +10,90 @@
   </head>
   <body>
     <my-component first="Stencil" last="'Don't call me a framework' JS"></my-component>
+
+    <popup-info img="图片icon地址" data-text="悬浮显示的文字内容"></popup-info>
+
+    <at-button text="¡Hola mundo!"></at-button>
   </body>
+
+  <script type="module">
+    class PopupInfo extends HTMLElement {
+      constructor() {
+        super();
+      }
+      //每当元素添加到文档中时调用。规范建议开发人员尽可能在此回调中实现自定义元素的设定，而不是在构造函数中实现
+      connectedCallback() {
+        // 创建影子根
+        const shadow = this.attachShadow({ mode: 'open' }); //open:页面中的 JavaScript 可以通过影子宿主的 shadowRoot 属性访问影子 DOM 的内部
+
+        // 创建几个span
+        const wrapper = document.createElement('span');
+        wrapper.setAttribute('class', 'wrapper');
+
+        const icon = document.createElement('span');
+        icon.setAttribute('class', 'icon');
+        icon.setAttribute('tabindex', 0);
+
+        const info = document.createElement('span');
+        info.setAttribute('class', 'info');
+
+        // 获取属性内容然后将其放入 info 这个 span 内
+        const text = this.getAttribute('data-text');
+        info.textContent = text;
+
+        // 插入图标
+        let imgUrl;
+        if (this.hasAttribute('img')) {
+          imgUrl = this.getAttribute('img');
+        } else {
+          imgUrl = 'img/default.png';
+        }
+
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        icon.appendChild(img);
+
+        // 创建一些 CSS 应用于影子 DOM
+        const style = document.createElement('style');
+        console.log(style.isConnected);
+
+        style.textContent = `
+              .wrapper {
+                position: relative;
+              }
+
+              .info {
+                font-size: 0.8rem;
+                width: 200px;
+                display: inline-block;
+                border: 1px solid black;
+                padding: 10px;
+                background: white;
+                border-radius: 10px;
+                opacity: 0;
+                transition: 0.6s all;
+                position: absolute;
+                top: 20px;
+                left: 10px;
+                z-index: 3;
+              }
+
+              img {
+                width: 1.2rem;
+              }
+
+              .icon:hover + .info, .icon:focus + .info {
+                opacity: 1;
+              }
+            `;
+        // 将创建好的元素附加到影子 DOM 上
+        shadow.appendChild(style);
+        console.log(style.isConnected);
+        shadow.appendChild(wrapper);
+        wrapper.appendChild(icon);
+        wrapper.appendChild(info);
+      }
+    }
+    customElements.define('popup-info', PopupInfo);
+  </script>
 </html>
